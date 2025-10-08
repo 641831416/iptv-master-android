@@ -14,6 +14,18 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       
+    # 添加文件检查步骤
+    - name: Verify project structure
+      run: |
+        echo "项目结构:"
+        find . -type f -name "*.gradle" -o -name "AndroidManifest.xml" -o -name "*.kt"
+        echo ""
+        echo "app/build.gradle 内容:"
+        cat app/build.gradle || echo "文件不存在"
+        echo ""
+        echo "settings.gradle 内容:"
+        cat settings.gradle || echo "文件不存在"
+        
     - name: Set up JDK 17
       uses: actions/setup-java@v4
       with:
@@ -23,26 +35,17 @@ jobs:
     # 备选方案：直接下载并使用 Gradle
     - name: Download and setup Gradle
       run: |
-        # 下载 Gradle 8.4 (您可以根据需要更改版本)
         wget https://services.gradle.org/distributions/gradle-8.4-bin.zip
         unzip gradle-8.4-bin.zip
-        # 设置环境变量
         echo "GRADLE_HOME=$PWD/gradle-8.4" >> $GITHUB_ENV
         echo "$PWD/gradle-8.4/bin" >> $GITHUB_PATH
-        
-    # 检查 Gradle 版本
-    - name: Check Gradle version
-      run: gradle --version
         
     # 使用 Gradle 构建项目
     - name: Build with Gradle
       run: |
-        # 检查项目结构
-        ls -la
-        # 执行构建
+        gradle projects
         gradle assembleDebug --stacktrace --info
         
-    # 上传构建产物
     - name: Upload APK artifact
       uses: actions/upload-artifact@v4
       with:
