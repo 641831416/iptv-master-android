@@ -13,33 +13,28 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-
-    # --- 修复核心问题的步骤 --- 
+      
+    # 添加调试信息
+    - name: Debug directory structure
+      run: |
+        ls -la
+        ls -la gradle/wrapper
+        
     - name: Make gradlew executable
       run: chmod +x ./gradlew
-      # 此步骤确保 gradlew 脚本具有执行权限，解决了 "Gradle script ... is not executable" 错误
-
+      
     - name: Set up JDK 17
       uses: actions/setup-java@v4
       with:
         java-version: '17'
         distribution: 'temurin'
-
-    # --- 优化缓存配置的步骤 ---
-    - name: Cache Gradle packages
-      uses: actions/cache@v3
-      with:
-        path: |
-          ~/.gradle/caches
-          ~/.gradle/wrapper
-        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-        restore-keys: |
-          ${{ runner.os }}-gradle-
-
+        
+    # 确保在正确目录执行
     - name: Build with Gradle
-      run: ./gradlew build
-
-    # --- 后续步骤 ---
+      run: |
+        pwd
+        ./gradlew assembleDebug --stacktrace
+        
     - name: Upload APK artifact
       uses: actions/upload-artifact@v4
       with:
