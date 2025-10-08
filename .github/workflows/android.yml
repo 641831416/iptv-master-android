@@ -14,27 +14,35 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       
-    # 添加调试信息
-    - name: Debug directory structure
-      run: |
-        ls -la
-        ls -la gradle/wrapper
-        
-    - name: Make gradlew executable
-      run: chmod +x ./gradlew
-      
     - name: Set up JDK 17
       uses: actions/setup-java@v4
       with:
         java-version: '17'
         distribution: 'temurin'
         
-    # 确保在正确目录执行
+    # 备选方案：直接下载并使用 Gradle
+    - name: Download and setup Gradle
+      run: |
+        # 下载 Gradle 8.4 (您可以根据需要更改版本)
+        wget https://services.gradle.org/distributions/gradle-8.4-bin.zip
+        unzip gradle-8.4-bin.zip
+        # 设置环境变量
+        echo "GRADLE_HOME=$PWD/gradle-8.4" >> $GITHUB_ENV
+        echo "$PWD/gradle-8.4/bin" >> $GITHUB_PATH
+        
+    # 检查 Gradle 版本
+    - name: Check Gradle version
+      run: gradle --version
+        
+    # 使用 Gradle 构建项目
     - name: Build with Gradle
       run: |
-        pwd
-        ./gradlew assembleDebug --stacktrace
+        # 检查项目结构
+        ls -la
+        # 执行构建
+        gradle assembleDebug --stacktrace --info
         
+    # 上传构建产物
     - name: Upload APK artifact
       uses: actions/upload-artifact@v4
       with:
