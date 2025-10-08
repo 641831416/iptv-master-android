@@ -19,11 +19,19 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
-    - name: Change wrapper permissions
-      run: chmod +x ./gradlew
-
+    # 使用 Gradle 直接构建，而不是通过 gradlew
     - name: Build with Gradle
-      run: ./gradlew assembleDebug
+      run: |
+        # 设置 Gradle 版本
+        gradle_version="8.4"
+        
+        # 下载并安装指定版本的 Gradle
+        wget https://services.gradle.org/distributions/gradle-${gradle_version}-bin.zip
+        unzip gradle-${gradle_version}-bin.zip
+        export PATH=$PWD/gradle-${gradle_version}/bin:$PATH
+        
+        # 执行构建
+        gradle assembleDebug
 
     - name: Upload APK artifact
       uses: actions/upload-artifact@v4
